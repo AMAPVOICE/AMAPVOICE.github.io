@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PilotTTS: A Disciplined Modular Recipe for Competitive Speech Synthesis</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --bg: #ffffff;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --border: #dadce0;
+            --surface: #f8f9fa;
+            --accent: #e8f0fe;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Hero Header */
+        .hero {
+            text-align: center;
+            padding: 60px 0 40px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero h1 {
+            font-size: 2em;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .hero .subtitle {
+            font-size: 1em;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .hero .authors {
+            font-size: 0.95em;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .links .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .links .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .links .btn-outline {
+            border: 1.5px solid var(--border);
+            color: var(--text);
+        }
+
+        .links .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--accent);
+        }
+
+        /* Content */
+        .content {
+            padding: 40px 0;
+        }
+
+        .section {
+            margin-bottom: 56px;
+            padding-bottom: 56px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .section-desc {
+            background: var(--surface);
+            padding: 16px 20px;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 24px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* Tables */
+        .demo-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .demo-table thead {
+            background: var(--surface);
+        }
+
+        .demo-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85em;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .demo-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .demo-table tbody tr:hover {
+            background: var(--accent);
+        }
+
+        .demo-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .audio-cell {
+            min-width: 200px;
+        }
+
+        audio {
+            width: 100%;
+            max-width: 280px;
+            height: 36px;
+        }
+
+        .text-cell {
+            max-width: 400px;
+            font-size: 0.88em;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.82em;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .tag-emotion {
+            background: #fef3cd;
+            color: #856404;
+        }
+
+        .tag-paralingual {
+            background: var(--accent);
+            color: var(--primary);
+        }
+
+        .tag-dialect {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .tag-code {
+            display: block;
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        .empty-placeholder {
+            color: #aaa;
+            font-style: italic;
+            font-size: 0.85em;
+        }
+
+        /* Dialect grid */
+        .dialect-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+            margin: 16px 0;
+            padding: 16px;
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .dialect-chip {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 0.82em;
+        }
+
+        .dialect-chip .name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .dialect-chip .code {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.8em;
+            color: var(--primary);
+        }
+
+        .highlight {
+            background: #e8f0fe;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.5em; }
+            .content { padding: 24px 0; }
+            .demo-table th, .demo-table td { padding: 8px 10px; }
+            audio { max-width: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <h1>PilotTTS: A Disciplined Modular Recipe for Competitive Speech Synthesis</h1>
+            <p class="subtitle">Amap Voice, Alibaba Group</p>
+            <div class="links">
+                <a href="https://arxiv.org/abs/2605.27258" class="btn-primary">Paper</a>
+                <a href="https://github.com/AMAPVOICE/PilotTTS" class="btn-outline">Code</a>
+                <a href="https://huggingface.co/AmapVoice/PilotTTS" class="btn-outline">HuggingFace</a>
+                <a href="https://www.modelscope.cn/models/AmapVoice/PilotTTS" class="btn-outline">ModelScope</a>
+            </div>
+        </div>
+
+        <!-- Abstract -->
+        <section style="padding:40px 0; border-bottom:1px solid var(--border);">
+            <h2 style="font-size:1.3em; font-weight:600; margin-bottom:16px;">Abstract</h2>
+            <p style="font-size:0.92em; line-height:1.8; color:var(--text-secondary); text-align:justify;">
+                Building state-of-the-art text-to-speech (TTS) systems typically demands millions of hours of proprietary data and complex multi-stage architectures, creating substantial barriers for resource-constrained research teams. In this report, we present PilotTTS, a lightweight autoregressive TTS system that achieves competitive performance through minimalist architecture and rigorous data engineering. Trained on only 200K hours of data processed entirely by open-source tools, PilotTTS contributes: (1) a reproducible multi-stage data processing pipeline covering quality assessment, label annotation, and filtering, and (2) a compact model architecture that employs Q-Former-based conditioning to decouple speaker identity from speaking style via cross-sample paired training. Within a unified framework, PilotTTS supports zero-shot voice cloning, emotion synthesis with 11 categories, paralinguistic synthesis with 4 categories, and Chinese dialect synthesis with 14 dialects. On the Seed-TTS Eval benchmark, PilotTTS achieves the lowest WER of 1.50% on <em>test-en</em>, a CER of 0.87% on <em>test-zh</em>, and the highest speaker similarity on both test sets (0.862 and 0.815), outperforming systems trained on significantly larger datasets.
+            </p>
+
+            <!-- Architecture Figure -->
+            <div style="text-align:center; margin:32px 0 16px;">
+                <img src="https://raw.githubusercontent.com/AMAPVOICE/PilotTTS/master/assert/Introduction.png" alt="PilotTTS Overview" style="max-width:600px; width:100%;">
+                <p style="font-size:0.82em; color:var(--text-secondary); margin-top:8px;">Figure 1: Overview of PilotTTS.</p>
+            </div>
+
+        </section>
+
+        <!-- Showcase Audio -->
+        <section style="padding:40px 0; border-bottom:1px solid var(--border); text-align:center;">
+            <h2 style="font-size:1.3em; font-weight:600; margin-bottom:8px;">Zero-Shot Voice Cloning Demo</h2>
+            <p style="font-size:0.9em; color:var(--text-secondary); margin-bottom:20px;">27 zero-shot cloned voices, emotions, paralinguistic expressions, multi-dialect — all from PilotTTS</p>
+            <audio controls preload="auto" style="width:100%; max-width:600px; height:44px;">
+                <source src="celebrity_demo.wav" type="audio/wav">
+            </audio>
+        </section>
+
+        <div class="content">
+            <!-- 情感合成部分 -->
+            <div class="section">
+                <h2 class="section-title">Emotional Speech Synthesis</h2>
+                <div class="section-desc">
+                    PilotTTS supports zero-shot emotional speech synthesis across 11 categories. Given a neutral prompt audio and an emotion tag, the model generates speech with the corresponding emotional expression.
+                </div>
+
+                <table class="demo-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px">Emotion</th>
+                            <th class="audio-cell">Prompt Audio</th>
+                            <th class="text-cell">Text</th>
+                            <th class="audio-cell">Generated Speech</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emotionTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 副语言部分 -->
+            <div class="section">
+                <h2 class="section-title">Paralinguistic Features</h2>
+                <div class="section-desc">
+                    The model supports paralinguistic generation including <span class="highlight">LAUGH</span>, <span class="highlight">COUGH</span>, <span class="highlight">CRY</span>, <span class="highlight">BREATH</span>, and <span class="highlight">COMBO</span>. Special tags (e.g., <code>&lt;|LAUGH|&gt;</code>) in the text control where paralinguistic events are inserted.
+                </div>
+
+                <table class="demo-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px">Type</th>
+                            <th class="audio-cell">Prompt Audio</th>
+                            <th class="text-cell">Text with Tags</th>
+                            <th class="audio-cell">Generated Speech</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paralingualTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 方言合成部分 -->
+            <div class="section">
+                <h2 class="section-title">Dialect Speech Synthesis</h2>
+                <div class="section-desc">
+                    PilotTTS supports 13 Chinese dialects with 91.8% same-dialect accuracy. The following dialects are supported:
+                </div>
+                <div class="dialect-grid" id="dialectOverview"></div>
+            </div>
+
+            <!-- 方言2方言 -->
+            <div class="section">
+                <h2 class="section-title">Same-Dialect Synthesis (Dialect → Dialect)</h2>
+                <div class="section-desc">
+                    Using a dialect prompt audio as reference, the model generates speech in the same dialect while preserving speaker characteristics.
+                </div>
+
+                <table class="demo-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 130px">Dialect</th>
+                            <th class="audio-cell">Prompt Audio</th>
+                            <th class="text-cell">Text</th>
+                            <th class="audio-cell">Generated Speech</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fang2fangTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 普通话2方言 -->
+            <div class="section">
+                <h2 class="section-title">Mandarin-to-Dialect Synthesis</h2>
+                <div class="section-desc">
+                    Using a Mandarin prompt audio as reference, the model extracts speaker timbre and generates speech in the target dialect.
+                </div>
+
+                <table class="demo-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 130px">Dialect</th>
+                            <th class="audio-cell">Prompt Audio</th>
+                            <th class="text-cell">Text</th>
+                            <th class="audio-cell">Generated Speech</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pth2fangTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 其他方言2方言 -->
+            <div class="section">
+                <h2 class="section-title">Cross-Dialect Synthesis</h2>
+                <div class="section-desc">
+                    Using a prompt audio in one dialect, the model generates speech in a different target dialect while preserving speaker identity.
+                </div>
+
+                <table class="demo-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 160px">Source → Target</th>
+                            <th class="audio-cell">Prompt Audio</th>
+                            <th class="text-cell">Text</th>
+                            <th class="audio-cell">Generated Speech</th>
+                        </tr>
+                    </thead>
+                    <tbody id="other2fangTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>PilotTTS &copy; 2026 Alibaba Group &middot; <a href="https://github.com/AMAPVOICE/PilotTTS">Code</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // 情感数据（从CSV解析）
+        const emotionData = [
+            {emotion: 'happy', speaker: 'ugc_female_455817342', result: 'success'},
+            {emotion: 'happy', speaker: 'ugc_male_332162548', result: 'success'},
+            // {emotion: 'happy', speaker: 'ugc_male_665501316', result: 'success'},
+            {emotion: 'sad', speaker: 'ugc_female_295958083', result: 'success'},
+            {emotion: 'sad', speaker: 'ugc_male_1567398845', result: 'success'},
+            {emotion: 'angry', speaker: 'ugc_female_1221522301', result: 'success'},
+            {emotion: 'angry', speaker: 'ugc_male_752354976', result: 'success'},
+
+            {emotion: 'serious', speaker: 'ugc_female_295958083', result: 'success'},
+            {emotion: 'serious', speaker: 'ugc_male_574969257', result: 'success'},
+
+            {emotion: 'surprise', speaker: 'ugc_female_1741166204', result: 'success'},
+            {emotion: 'surprise', speaker: 'ugc_male_63867640', result: 'success'},
+            {emotion: 'concern', speaker: 'ugc_female_340406953', result: 'success'},
+            // {emotion: 'concern', speaker: 'ugc_female_547250522', result: 'success'},
+            // {emotion: 'concern', speaker: 'ugc_female_880180303', result: 'success'},
+            // {emotion: 'concern', speaker: 'ugc_male_421818169', result: 'success'},
+            {emotion: 'concern', speaker: 'ugc_male_515296449', result: 'success'},
+
+            {emotion: 'fear', speaker: 'ugc_female_687536175', result: 'success'},
+            {emotion: 'fear', speaker: 'ugc_male_1099218285', result: 'success'},
+
+            // {emotion: 'blue', speaker: 'ugc_male_665501316', result: 'success'},
+            // {emotion: 'blue', speaker: 'ugc_male_63867640', result: 'success'},
+            {emotion: 'blue', speaker: 'ugc_male_332162548', result: 'success'},
+            // {emotion: 'blue', speaker: 'ugc_male_1567398845', result: 'success'},
+            // {emotion: 'blue', speaker: 'ugc_female_379150691', result: 'success'},
+            {emotion: 'blue', speaker: 'ugc_female_455817342', result: 'success'},
+
+            // {emotion: 'disdain', speaker: 'ugc_female_921217635', result: 'success'},
+            {emotion: 'disdain', speaker: 'ugc_female_629170212', result: 'success'},
+            // {emotion: 'disdain', speaker: 'ugc_male_735382565', result: 'success'},
+            {emotion: 'disdain', speaker: 'ugc_male_574969257', result: 'success'},
+
+            {emotion: 'psychology', speaker: 'ugc_female_295958083', result: 'success'},
+            {emotion: 'psychology', speaker: 'ugc_male_332162548', result: 'success'},
+
+            {emotion: 'disgust', speaker: 'ugc_female_633998206', result: 'success'},
+            {emotion: 'disgust', speaker: 'ugc_male_1099218285', result: 'success'}
+
+        ];
+        
+        // 副语言数据
+        const paralingualData = [
+            {
+                type: '笑声',
+                id: 'Laugh06',
+                text: '朋友说要买健身器材，结果最后只带了一根瑜伽垫回家<|LAUGH|>随便吧。',
+                prompt: 'para_lingual/prompt_emilia.wav',
+                audio: 'para_lingual/demo_laugh_06_emilia.wav'
+            },
+            {
+                type: '笑声',
+                id: 'Laugh09',
+                text: '乌龟对他的儿子笑了笑<|LAUGH|>你这个小家伙，你懂的难道比爸爸还多吗？',
+                prompt: 'para_lingual/prompt_emilia.wav',
+                audio: 'para_lingual/demo_laugh_09_emilia.wav'
+            },
+            {
+                type: '笑声',
+                id: 'Lspan05',
+                text: '你太客气了，这点小事真不算什么<|LAUGH_SPAN|>呃嘿嘿<|/LAUGH_SPAN|>举手之劳嘛。',
+                prompt: 'para_lingual/prompt_emilia.wav',
+                audio: 'para_lingual/demo_lspan_05_emilia.wav'
+            },
+            {
+                type: '咳嗽',
+                id: 'Cough02',
+                text: '你这记性也太好了吧<|COUGH|>人家女孩子那么纯洁漂亮，怎么能随便拿来比呢。',
+                prompt: 'para_lingual/prompt_emilia.wav',
+                audio: 'para_lingual/demo_cough_02_emilia.wav'
+            },
+            {
+                type: '哭声',
+                id: 'Cry07',
+                text: '娘娘，本嬷嬷这些年，都是为了您呐<|CRY|>你们这些下人，有什么资格在这儿说风凉话呀。',
+                prompt: 'para_lingual/prompt_emilia.wav',
+                audio: 'para_lingual/demo_cry_07_emilia.wav'
+            },
+            {
+                type: '呼吸',
+                id: 'Breath08',
+                text: '那，那好吧，我也希望你们能真正理解我<|BREATH|>支持我，而不是觉得我只是一个被宠坏的孩子。',
+                prompt: 'para_lingual/prompt_emilia.wav',
+                audio: 'para_lingual/demo_breath_08_emilia.wav'
+            },
+            {
+                type: '组合',
+                id: 'Combo02',
+                text: '这有什么呀<|LAUGH|>大家不都是图个乐嘛<|BREATH|>谁看见这小家伙能不乐呵呀？',
+                prompt: 'para_lingual/prompt_emilia.wav',
+                audio: 'para_lingual/demo_combo_02_emilia.wav'
+            }
+        ];
+        
+        // 情感中文映射
+        const emotionMap = {
+            'angry': '愤怒',
+            'blue': '忧郁',
+            'concern': '关心',
+            'disdain': '鄙视',
+            'disgust': '厌恶',
+            'fear': '恐惧',
+            'happy': '开心',
+            'psychology': '内心独白',
+            'sad': '悲伤',
+            'serious': '严肃',
+            'surprise': '惊讶'
+        };
+        
+        // 情感测试文本（从原始HTML提取）
+        const emotionTexts = {
+            'angry': '我已经说了无数遍了，这件事绝对不能这么处理，你们每次都当耳旁风，出了问题又来找我怎么办？',
+            'blue': '窗外下着小雨，我一个人坐在沙发上发呆，手机翻了又翻，却不知道该找谁聊天，心里空落落的。',
+            'concern': '最近你总是加班到很晚，饭也不好好吃，我真的很担心你的身体，你能不能答应我先去医院做个检查？',
+            'disdain': '我见过太多像你这样眼高手低的人了，说得天花乱坠结果一件正事都做不成，我劝你还是认清现实吧。',
+            'disgust': '我没见过这么不要脸的人，明明是自己犯的错，还好意思倒打一耙往别人身上推责任，真是让人作呕。',
+            'fear': '那个黑影越来越近了，我能听到它沉重的脚步声，我的心跳快要从嗓子眼里蹦出来了，浑身都在发抖。',
+            'happy': '今天是我这辈子最开心的一天，不仅升职加薪了，老朋友们还专门从外地赶过来给我庆祝，真是太幸福了。',
+            'psychology': '我理解你现在的感受，这种焦虑和不安是完全正常的，我们可以一起慢慢找到让你安心的方法，不要给自己太大压力。',
+            'sad': '每次路过那条我们一起走过的小路，眼泪就忍不住往下掉，那些美好的回忆如今都变成了刺痛心口的针。',
+            'serious': '我现在郑重地告诉各位，这个项目关系到公司的生死存亡，从今天起所有人必须全力以赴，不允许有任何懈怠。',
+            'surprise': '天啊我简直不敢相信，这个平时一句话都不多说的人居然偷偷准备了这么大一个惊喜给所有人。'
+        };
+        
+        // 渲染情感表格 - 按类别分组但使用单一表格
+        function renderEmotionTable() {
+            const tbody = document.getElementById('emotionTableBody');
+            
+            // 按情感类型分组
+            const groupedData = {};
+            const emotionOrder = []; // 保持情感顺序
+            
+            emotionData.forEach(item => {
+                if (!groupedData[item.emotion]) {
+                    groupedData[item.emotion] = [];
+                    emotionOrder.push(item.emotion);
+                }
+                groupedData[item.emotion].push(item);
+            });
+            
+            // 遍历所有情感，在同一个表格中渲染
+            emotionOrder.forEach((emotion, emotionIndex) => {
+                groupedData[emotion].forEach((item, itemIndex) => {
+                    const basePath = 'emotion_eval_0509/audio';
+                    const text = emotionTexts[item.emotion] || '';
+                    
+                    const row = document.createElement('tr');
+                    
+                    // 每个情感类别的第一行显示情感标签，其他行留空
+                    let emotionCell;
+                    if (itemIndex === 0) {
+                        emotionCell = `<td><span class="tag tag-emotion">${emotionMap[emotion]}<br><small>${emotion}</small></span></td>`;
+                    } else {
+                        emotionCell = '<td></td>';
+                    }
+                    
+                    row.innerHTML = `
+                        ${emotionCell}
+                        <td class="audio-cell">
+                            <audio controls preload="none">
+                                <source src="${basePath}/prompt_${item.speaker}.wav" type="audio/wav">
+                            </audio>
+                        </td>
+                        <td class="text-cell">${text}</td>
+                        <td class="audio-cell">
+                            <audio controls preload="none">
+                                <source src="${basePath}/${item.speaker}@${item.emotion}_long_tagged.wav" type="audio/wav">
+                            </audio>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+        }
+        
+        // 渲染副语言表格 - 按类别分组但使用单一表格
+        function renderParalingualTable() {
+            const tbody = document.getElementById('paralingualTableBody');
+            
+            // 按类型分组
+            const groupedData = {};
+            const typeOrder = []; // 保持类型顺序
+            
+            paralingualData.forEach(item => {
+                if (!groupedData[item.type]) {
+                    groupedData[item.type] = [];
+                    typeOrder.push(item.type);
+                }
+                groupedData[item.type].push(item);
+            });
+            
+            // 遍历所有类型，在同一个表格中渲染
+            typeOrder.forEach(type => {
+                groupedData[type].forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // 每个类别的第一行显示类型标签，其他行留空
+                    let typeCell;
+                    if (index === 0) {
+                        typeCell = `<td><span class="tag tag-paralingual">${type}</span></td>`;
+                    } else {
+                        typeCell = '<td></td>';
+                    }
+                    
+                    // 创建文本单元格并手动处理高亮
+                    const textCell = document.createElement('td');
+                    textCell.className = 'text-cell';
+                    
+                    // 使用正则表达式分割文本并创建高亮元素
+                    const parts = item.text.split(/(<\|[^|]+\|>)/g);
+                    parts.forEach(part => {
+                        if (part.match(/^<\|[^|]+\|>$/)) {
+                            // 这是副语言标签，创建高亮span
+                            const span = document.createElement('span');
+                            span.className = 'highlight';
+                            span.textContent = part;
+                            textCell.appendChild(span);
+                        } else if (part) {
+                            // 普通文本
+                            textCell.appendChild(document.createTextNode(part));
+                        }
+                    });
+                    
+                    row.innerHTML = `
+                        ${typeCell}
+                        <td class="audio-cell">
+                            <audio controls preload="none">
+                                <source src="${item.prompt}" type="audio/wav">
+                            </audio>
+                        </td>
+                    `;
+                    row.insertBefore(textCell, row.children[2]);
+                    
+                    const audioCell = document.createElement('td');
+                    audioCell.className = 'audio-cell';
+                    audioCell.innerHTML = `
+                        <audio controls preload="none">
+                            <source src="${item.audio}" type="audio/wav">
+                        </audio>
+                    `;
+                    row.appendChild(audioCell);
+                    
+                    tbody.appendChild(row);
+                });
+            });
+        }
+        
+        // 方言标签映射
+        const dialectMap = {
+            'zh-dongbei': '东北话',
+            'zh-shandong': '山东话',
+            'zh-henan': '河南话',
+            'zh-shan2xi': '陕西话',
+            'zh-gansu': '甘肃话',
+            'zh-ningxia': '宁夏话',
+            'zh-chongqing': '重庆话',
+            'zh-hubei': '湖北话',
+            'zh-hunan': '湖南话',
+            'zh-jiangxi': '江西话',
+            'zh-guizhou': '贵州话',
+            'zh-yunnan': '云南话',
+            'zh-shanghai': '上海话'
+        };
+
+        // 方言2方言数据（按钉钉文档选定的demo）
+        const fang2fangData = [
+            { dialect: 'zh-dongbei', prompt: 'dialect/prompts/fang2fang_prompt_dongbei_4321.wav', text: '你搁那瞅啥呢？眼珠子都快瞪出来了。', audio: 'dialect/fang2fang/dialect_dongbei_4321-dialect_dongbei-4.wav' },
+            { dialect: 'zh-shandong', prompt: 'dialect/prompts/fang2fang_prompt_shandong_2263.wav', text: '警方表示，是否闯红灯还有待进一步调查。', audio: 'dialect/fang2fang/dialect_shandong_2263-zh-shandong-0.wav' },
+            { dialect: 'zh-henan', prompt: 'dialect/prompts/fang2fang_prompt_henan_3558.wav', text: '都穿好几年了，恁就会说好听话。', audio: 'dialect/fang2fang/dialect_henan_3558-zh-henan-1.wav' },
+            { dialect: 'zh-shan2xi', prompt: 'dialect/prompts/fang2fang_prompt_shanxi_5248.wav', text: '说那做甚咧！咱弟兄们，有事吭气就行。', audio: 'dialect/fang2fang/dialect_shanxi_5248-zh-shan2xi-1.wav' },
+            { dialect: 'zh-gansu', prompt: 'dialect/prompts/fang2fang_prompt_gansu_2703.wav', text: '就是滴，你也可稀罕了。最近做啥着哩？', audio: 'dialect/fang2fang/dialect_gansu_2703-dialect_gansu-0.wav' },
+            { dialect: 'zh-ningxia', prompt: 'dialect/prompts/fang2fang_prompt_ningxia_6400.wav', text: '用法律和人生的哲理去教育他们。', audio: 'dialect/fang2fang/dialect_ningxia_6400-dialect_ningxia-0.wav' },
+            { dialect: 'zh-hubei', prompt: 'dialect/prompts/fang2fang_prompt_hubei_G02046.wav', text: '你说他是不是有点苕，那么简单个事情都搞不清白。', audio: 'dialect/fang2fang/dialect_hubei_G02046-dialect_hubei-1.wav' },
+            { dialect: 'zh-hunan', prompt: 'dialect/prompts/fang2fang_prompt_hunan_G92094.wav', text: '就是随便搞两哈子，你才是越来越韵味了。', audio: 'dialect/fang2fang/dialect_hunan_G92094-dialect_hunan-3.wav' },
+            { dialect: 'zh-jiangxi', prompt: 'dialect/prompts/fang2fang_prompt_jiangxi_0613.wav', text: '如果江西各县都这样就好了！', audio: 'dialect/fang2fang/dialect_jiangxi_0613-dialect_jiangxi-1.wav' },
+            { dialect: 'zh-guizhou', prompt: 'dialect/prompts/fang2fang_prompt_guizhou_0730.wav', text: '还不是那个事情，搞半天都搞不归一。', audio: 'dialect/fang2fang/dialect_guizhou_0730-zh-guizhou-2.wav' },
+            { dialect: 'zh-shanghai', prompt: 'dialect/prompts/fang2fang_prompt_shanghai_T0108G0708.wav', text: '侬可要照顾好自家。', audio: 'dialect/fang2fang/dialect_shanghai_T0108G0708-zh-shanghai-1.wav' },
+        ];
+
+        // 普通话2方言数据（按钉钉文档选定的demo，每个方言2条：xiaogao + pgc）
+        const pth2fangData = [
+            { dialect: 'zh-dongbei', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '这锅包肉做得嘎嘎香，锅里还有酸菜炖大骨头。', audio: 'dialect/pth2fang/xiaogao-264dialect_dongbei.wav' },
+            { dialect: 'zh-dongbei', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-679.wav', text: '你搁那瞅啥呢？眼珠子都快瞪出来了。', audio: 'dialect/pth2fang/pgc-ip-679-329dialect_dongbei.wav' },
+            { dialect: 'zh-shandong', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '警方表示，是否闯红灯还有待进一步调查。', audio: 'dialect/pth2fang/xiaogao-1650zh-shandong.wav' },
+            { dialect: 'zh-shandong', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-612.wav', text: '如果年假时间不够有时候就请假几天。', audio: 'dialect/pth2fang/pgc-ip-612-1713zh-shandong.wav' },
+            { dialect: 'zh-henan', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '老表，恁早咱弄啥去咧？', audio: 'dialect/pth2fang/xiaogao-792zh-henan.wav' },
+            { dialect: 'zh-henan', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-679.wav', text: '老表，恁早咱弄啥去咧？', audio: 'dialect/pth2fang/pgc-ip-679-824zh-henan.wav' },
+            { dialect: 'zh-shan2xi', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '可怜之人，必有可悲之处。', audio: 'dialect/pth2fang/xiaogao-2112zh-shan2xi.wav' },
+            { dialect: 'zh-shan2xi', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-613.wav', text: '听说老李家小子考上大学了，真不赖咧！', audio: 'dialect/pth2fang/pgc-ip-613-2077zh-shan2xi.wav' },
+            { dialect: 'zh-gansu', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '哎呀，天爷都黑得透透的了，你咋还不回屋？', audio: 'dialect/pth2fang/xiaogao-429dialect_gansu.wav' },
+            { dialect: 'zh-gansu', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-613.wav', text: '哎呀，天爷都黑得透透的了，你咋还不回屋？', audio: 'dialect/pth2fang/pgc-ip-613-460dialect_gansu.wav' },
+            { dialect: 'zh-ningxia', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '用法律和人生的哲理去教育他们。', audio: 'dialect/pth2fang/xiaogao-1485dialect_ningxia.wav' },
+            { dialect: 'zh-ningxia', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-613.wav', text: '你干甚去咧？一早上没见你人影。', audio: 'dialect/pth2fang/pgc-ip-613-1549dialect_ningxia.wav' },
+            { dialect: 'zh-hubei', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '我这不是为你着想嘛，你还嫌我话多。', audio: 'dialect/pth2fang/xiaogao-957dialect_hubei.wav' },
+            { dialect: 'zh-hubei', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-613.wav', text: '他昨天喝得麻木了，站到都打晃晃。', audio: 'dialect/pth2fang/pgc-ip-613-856dialect_hubei.wav' },
+            { dialect: 'zh-hunan', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '你留步咯，我先走哒，电话联系。', audio: 'dialect/pth2fang/xiaogao-1122dialect_hunan.wav' },
+            { dialect: 'zh-hunan', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-612.wav', text: '东哥你先吃，还有好一会儿才好。', audio: 'dialect/pth2fang/pgc-ip-612-1086dialect_hunan.wav' },
+            { dialect: 'zh-jiangxi', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '你听他哇，十句有九句是水，信不得。', audio: 'dialect/pth2fang/xiaogao-1287dialect_jiangxi.wav' },
+            { dialect: 'zh-jiangxi', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-612.wav', text: '如果江西各县都这样就好了！', audio: 'dialect/pth2fang/pgc-ip-612-1218dialect_jiangxi.wav' },
+            { dialect: 'zh-guizhou', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '我晓得，那个人说话不靠谱得很。', audio: 'dialect/pth2fang/xiaogao-627zh-guizhou.wav' },
+            { dialect: 'zh-guizhou', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-613.wav', text: '我晓得，那个人说话不靠谱得很。', audio: 'dialect/pth2fang/pgc-ip-613-658zh-guizhou.wav' },
+            { dialect: 'zh-yunnan', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '是呢，头有点疼，鼻子也不通，难受得很。', audio: 'dialect/pth2fang/xiaogao-1353zh-yunnan.wav' },
+            { dialect: 'zh-yunnan', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-610.wav', text: '是呢，头有点疼，鼻子也不通，难受得很。', audio: 'dialect/pth2fang/pgc-ip-610-1382zh-yunnan.wav' },
+            { dialect: 'zh-shanghai', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '阿拉医院每天接待门诊病人达十多人。', audio: 'dialect/pth2fang/xiaogao-1881zh-shanghai.wav' },
+            { dialect: 'zh-shanghai', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-679.wav', text: '侬可要照顾好自家。', audio: 'dialect/pth2fang/pgc-ip-679-1880zh-shanghai.wav' },
+            { dialect: 'zh-chongqing', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '热得遭不住，切屋头吹哈空调躲一哈。', audio: 'dialect/pth2fang/xiaogao-66dialect_chongqing.wav' },
+            { dialect: 'zh-chongqing', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-612.wav', text: '你晓不晓得明天到底放不放假？', audio: 'dialect/pth2fang/pgc-ip-612-30dialect_chongqing.wav' },
+        ];
+
+        // 跨方言合成数据（source dialect → target dialect）
+        const other2fangData = [
+            { dialect: 'zh-shanghai', source: 'zh-shan2xi', prompt: 'dialect/prompts/other2fang_prompt_shanxi_5428.wav', text: '我明朝想请一天假。', audio: 'dialect/other2fang/dialect_shanxi_5428-zh-shanghai-3.wav' },
+            { dialect: 'zh-shanghai', source: 'zh-henan', prompt: 'dialect/prompts/fang2fang_prompt_henan_3558.wav', text: '淞南镇、蕴藻南路三百九十九号。', audio: 'dialect/other2fang/dialect_henan_3558-zh-shanghai-0.wav' },
+            { dialect: 'zh-shandong', source: 'zh-hunan', prompt: 'dialect/prompts/fang2fang_prompt_hunan_G92094.wav', text: '能写好文章的人，不一定能教好学生写好文章。', audio: 'dialect/other2fang/dialect_hunan_G92094-zh-shandong-3.wav' },
+            { dialect: 'zh-shandong', source: 'zh-hubei', prompt: 'dialect/prompts/fang2fang_prompt_hubei_G02046.wav', text: '他从小就有这个毛病，把牛吹得满天飞。', audio: 'dialect/other2fang/dialect_hubei_G02046-zh-shandong-2.wav' },
+            { dialect: 'zh-henan', source: 'zh-jiangxi', prompt: 'dialect/prompts/other2fang_prompt_jiangxi_0627.wav', text: '就按你说哩办，包在我身上了！', audio: 'dialect/other2fang/dialect_jiangxi_0627-zh-henan-3.wav' },
+            { dialect: 'zh-henan', source: 'zh-shanghai', prompt: 'dialect/prompts/fang2fang_prompt_shanghai_T0108G0708.wav', text: '那中，听恁一句，明儿再说。', audio: 'dialect/other2fang/dialect_shanghai_T0108G0708-zh-henan-0.wav' },
+            { dialect: 'zh-hunan', source: 'zh-shanghai', prompt: 'dialect/prompts/fang2fang_prompt_shanghai_T0108G0708.wav', text: '就是随便搞两哈子，你才是越来越韵味了。', audio: 'dialect/other2fang/dialect_shanghai_T0108G0708-dialect_hunan-3.wav' },
+            { dialect: 'zh-hunan', source: 'zh-henan', prompt: 'dialect/prompts/fang2fang_prompt_henan_3558.wav', text: '东哥你先吃，还有好一会儿才好。', audio: 'dialect/other2fang/dialect_henan_3558-dialect_hunan-2.wav' },
+            { dialect: 'zh-hubei', source: 'zh-shanghai', prompt: 'dialect/prompts/fang2fang_prompt_shanghai_T0108G0708.wav', text: '这个事情搞得人蛮烦，手续一堆，跑都跑不赢。', audio: 'dialect/other2fang/dialect_shanghai_T0108G0708-dialect_hubei-3.wav' },
+            { dialect: 'zh-hubei', source: 'zh-shandong', prompt: 'dialect/prompts/other2fang_prompt_shandong_2440.wav', text: '你说他是不是有点苕，那么简单个事情都搞不清白。', audio: 'dialect/other2fang/dialect_shandong_2440-dialect_hubei-1.wav' },
+            { dialect: 'zh-guizhou', source: 'zh-shandong', prompt: 'dialect/prompts/other2fang_prompt_shandong_2440.wav', text: '我晓得，那个人说话不靠谱得很。', audio: 'dialect/other2fang/dialect_shandong_2440-zh-guizhou-4.wav' },
+            { dialect: 'zh-guizhou', source: 'zh-dongbei', prompt: 'dialect/prompts/other2fang_prompt_dongbei_4388.wav', text: '你咋个搞的嘛，毛手毛脚的。', audio: 'dialect/other2fang/dialect_dongbei_4388-zh-guizhou-1.wav' },
+        ];
+
+        // 渲染方言总览
+        function renderDialectOverview() {
+            const container = document.getElementById('dialectOverview');
+            Object.entries(dialectMap).forEach(([code, name]) => {
+                const chip = document.createElement('div');
+                chip.className = 'dialect-chip';
+                chip.innerHTML = `<span class="name">${name}</span><span class="code">${code}</span>`;
+                container.appendChild(chip);
+            });
+        }
+
+        // 通用方言表格渲染函数
+        function renderDialectTable(data, tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            if (!data || data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="4" style="text-align:center;"><span class="empty-placeholder">Demo待补充</span></td>';
+                tbody.appendChild(row);
+                return;
+            }
+
+            const groupedData = {};
+            const dialectOrder = [];
+
+            data.forEach(item => {
+                if (!groupedData[item.dialect]) {
+                    groupedData[item.dialect] = [];
+                    dialectOrder.push(item.dialect);
+                }
+                groupedData[item.dialect].push(item);
+            });
+
+            dialectOrder.forEach(dialect => {
+                groupedData[dialect].forEach((item, index) => {
+                    const row = document.createElement('tr');
+
+                    let dialectCell;
+                    if (index === 0) {
+                        dialectCell = `<td><span class="tag tag-dialect">${dialectMap[dialect]}</span><span class="tag-code">${dialect}</span></td>`;
+                    } else {
+                        dialectCell = '<td></td>';
+                    }
+
+                    const promptHtml = item.prompt
+                        ? `<audio controls preload="none"><source src="${item.prompt}" type="audio/wav"></audio>`
+                        : '<span class="empty-placeholder">待补充</span>';
+
+                    const textHtml = item.text
+                        ? item.text
+                        : '<span class="empty-placeholder">待补充</span>';
+
+                    const audioHtml = item.audio
+                        ? `<audio controls preload="none"><source src="${item.audio}" type="audio/wav"></audio>`
+                        : '<span class="empty-placeholder">待补充</span>';
+
+                    row.innerHTML = `
+                        ${dialectCell}
+                        <td class="audio-cell">${promptHtml}</td>
+                        <td class="text-cell">${textHtml}</td>
+                        <td class="audio-cell">${audioHtml}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+        }
+
+        // 跨方言表格渲染函数
+        function renderCrossDialectTable(data, tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            if (!data || data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="4" style="text-align:center;"><span class="empty-placeholder">Demo待补充</span></td>';
+                tbody.appendChild(row);
+                return;
+            }
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                const sourceName = dialectMap[item.source] || item.source;
+                const targetName = dialectMap[item.dialect] || item.dialect;
+                const dialectCell = `<td><span class="tag tag-dialect">${sourceName}</span> → <span class="tag tag-dialect">${targetName}</span></td>`;
+
+                const promptHtml = item.prompt
+                    ? `<audio controls preload="none"><source src="${item.prompt}" type="audio/wav"></audio>`
+                    : '<span class="empty-placeholder">待补充</span>';
+
+                const textHtml = item.text
+                    ? item.text
+                    : '<span class="empty-placeholder">待补充</span>';
+
+                const audioHtml = item.audio
+                    ? `<audio controls preload="none"><source src="${item.audio}" type="audio/wav"></audio>`
+                    : '<span class="empty-placeholder">待补充</span>';
+
+                row.innerHTML = `
+                    ${dialectCell}
+                    <td class="audio-cell">${promptHtml}</td>
+                    <td class="text-cell">${textHtml}</td>
+                    <td class="audio-cell">${audioHtml}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderEmotionTable();
+            renderParalingualTable();
+            renderDialectOverview();
+            renderDialectTable(fang2fangData, 'fang2fangTableBody');
+            renderDialectTable(pth2fangData, 'pth2fangTableBody');
+            renderCrossDialectTable(other2fangData, 'other2fangTableBody');
+        });
+    </script>
+</body>
+</html>
