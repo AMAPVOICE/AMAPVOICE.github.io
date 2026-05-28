@@ -454,141 +454,98 @@
     </footer>
 
     <script>
-        // 情感数据（从CSV解析）
+        // 情感数据 - 保持原始HTML顺序，新增情感类别使用新文件，原有不变
         const emotionData = [
-            {emotion: 'happy', speaker: 'ugc_female_455817342', result: 'success'},
-            {emotion: 'happy', speaker: 'ugc_male_332162548', result: 'success'},
-            // {emotion: 'happy', speaker: 'ugc_male_665501316', result: 'success'},
-            {emotion: 'sad', speaker: 'ugc_female_295958083', result: 'success'},
-            {emotion: 'sad', speaker: 'ugc_male_1567398845', result: 'success'},
-            {emotion: 'angry', speaker: 'ugc_female_1221522301', result: 'success'},
-            {emotion: 'angry', speaker: 'ugc_male_752354976', result: 'success'},
-
-            {emotion: 'serious', speaker: 'ugc_female_295958083', result: 'success'},
-            {emotion: 'serious', speaker: 'ugc_male_574969257', result: 'success'},
-
-            {emotion: 'surprise', speaker: 'ugc_female_1741166204', result: 'success'},
-            {emotion: 'surprise', speaker: 'ugc_male_63867640', result: 'success'},
-            {emotion: 'concern', speaker: 'ugc_female_340406953', result: 'success'},
-            // {emotion: 'concern', speaker: 'ugc_female_547250522', result: 'success'},
-            // {emotion: 'concern', speaker: 'ugc_female_880180303', result: 'success'},
-            // {emotion: 'concern', speaker: 'ugc_male_421818169', result: 'success'},
-            {emotion: 'concern', speaker: 'ugc_male_515296449', result: 'success'},
-
-            {emotion: 'fear', speaker: 'ugc_female_687536175', result: 'success'},
-            {emotion: 'fear', speaker: 'ugc_male_1099218285', result: 'success'},
-
-            // {emotion: 'blue', speaker: 'ugc_male_665501316', result: 'success'},
-            // {emotion: 'blue', speaker: 'ugc_male_63867640', result: 'success'},
-            {emotion: 'blue', speaker: 'ugc_male_332162548', result: 'success'},
-            // {emotion: 'blue', speaker: 'ugc_male_1567398845', result: 'success'},
-            // {emotion: 'blue', speaker: 'ugc_female_379150691', result: 'success'},
-            {emotion: 'blue', speaker: 'ugc_female_455817342', result: 'success'},
-
-            // {emotion: 'disdain', speaker: 'ugc_female_921217635', result: 'success'},
-            {emotion: 'disdain', speaker: 'ugc_female_629170212', result: 'success'},
-            // {emotion: 'disdain', speaker: 'ugc_male_735382565', result: 'success'},
-            {emotion: 'disdain', speaker: 'ugc_male_574969257', result: 'success'},
-
-            {emotion: 'psychology', speaker: 'ugc_female_295958083', result: 'success'},
-            {emotion: 'psychology', speaker: 'ugc_male_332162548', result: 'success'},
-
-            {emotion: 'disgust', speaker: 'ugc_female_633998206', result: 'success'},
-            {emotion: 'disgust', speaker: 'ugc_male_1099218285', result: 'success'}
-
+            {emotion: 'happy', prompt: 'emotion_demo/200039.wav', audio: 'emotion_demo/lspan_B2_t5.wav'},
+            {emotion: 'sad', prompt: 'emotion_demo/000010_005000.wav', audio: 'emotion_demo/multi_cry_breath_t10.wav'},
+            {emotion: 'angry', prompt: 'emotion_demo/t3.wav', audio: 'emotion_demo/angry_3_t3.wav'},
+            {emotion: 'serious', prompt: 'emotion_demo/prompt_ugc_male_574969257.wav', audio: 'emotion_demo/ugc_male_574969257@serious_long_tagged.wav'},
+            {emotion: 'surprise', prompt: 'emotion_demo/cixingM09.wav', audio: 'emotion_demo/surprise_2_cixingM09.wav'},
+            {emotion: 'concern', prompt: 'emotion_eval_0509/audio/prompt_ugc_female_340406953.wav', audio: 'emotion_eval_0509/audio/ugc_female_340406953@concern_long_tagged.wav'},
+            {emotion: 'fear', prompt: 'emotion_demo/DBCNF22.wav', audio: 'emotion_demo/fear_1_DBCNF22.wav'},
+            {emotion: 'blue', prompt: 'emotion_demo/t14.wav', audio: 'emotion_demo/blue_1_t14.wav'},
+            {emotion: 'disdain', prompt: 'emotion_demo/t5.wav', audio: 'emotion_demo/disdain_4_t5.wav'},
+            {emotion: 'psychology', prompt: 'emotion_demo/DBCNM23.wav', audio: 'emotion_demo/psychology_1_DBCNM23.wav'},
+            {emotion: 'disgust', prompt: 'emotion_demo/t1.wav', audio: 'emotion_demo/disgust_5_t1.wav'}
         ];
-        
+
         // 副语言数据
         const paralingualData = [
             {
                 type: '笑声',
-                id: 'Laugh06',
-                text: '朋友说要买健身器材，结果最后只带了一根瑜伽垫回家<|LAUGH|>随便吧。',
+                text: '<|LAUGH|>你刚刚那个反应太真实了！',
                 prompt: 'para_lingual/prompt_emilia.wav',
-                audio: 'para_lingual/demo_laugh_06_emilia.wav'
+                audio: 'para_lingual/lspan_hahaha2_emilia.wav'
             },
             {
                 type: '笑声',
-                id: 'Laugh09',
                 text: '乌龟对他的儿子笑了笑<|LAUGH|>你这个小家伙，你懂的难道比爸爸还多吗？',
                 prompt: 'para_lingual/prompt_emilia.wav',
                 audio: 'para_lingual/demo_laugh_09_emilia.wav'
             },
             {
-                type: '笑声',
-                id: 'Lspan05',
+                type: '包裹式笑声',
                 text: '你太客气了，这点小事真不算什么<|LAUGH_SPAN|>呃嘿嘿<|/LAUGH_SPAN|>举手之劳嘛。',
                 prompt: 'para_lingual/prompt_emilia.wav',
                 audio: 'para_lingual/demo_lspan_05_emilia.wav'
             },
             {
                 type: '咳嗽',
-                id: 'Cough02',
                 text: '你这记性也太好了吧<|COUGH|>人家女孩子那么纯洁漂亮，怎么能随便拿来比呢。',
                 prompt: 'para_lingual/prompt_emilia.wav',
                 audio: 'para_lingual/demo_cough_02_emilia.wav'
             },
             {
-                type: '哭声',
-                id: 'Cry07',
-                text: '娘娘，本嬷嬷这些年，都是为了您呐<|CRY|>你们这些下人，有什么资格在这儿说风凉话呀。',
-                prompt: 'para_lingual/prompt_emilia.wav',
-                audio: 'para_lingual/demo_cry_07_emilia.wav'
-            },
-            {
-                type: '呼吸',
-                id: 'Breath08',
+                type: '呼吸声',
                 text: '那，那好吧，我也希望你们能真正理解我<|BREATH|>支持我，而不是觉得我只是一个被宠坏的孩子。',
                 prompt: 'para_lingual/prompt_emilia.wav',
                 audio: 'para_lingual/demo_breath_08_emilia.wav'
             },
             {
-                type: '组合',
-                id: 'Combo02',
-                text: '这有什么呀<|LAUGH|>大家不都是图个乐嘛<|BREATH|>谁看见这小家伙能不乐呵呀？',
+                type: '哭泣',
+                text: '说着说着我又想起他了<|CRY|>真的撑不住<|BREATH|>让我缓缓。',
                 prompt: 'para_lingual/prompt_emilia.wav',
-                audio: 'para_lingual/demo_combo_02_emilia.wav'
+                audio: 'para_lingual/multi_cry_breath_emilia.wav'
             }
         ];
-        
+
         // 情感中文映射
         const emotionMap = {
             'angry': '愤怒',
             'blue': '忧郁',
             'concern': '关心',
-            'disdain': '鄙视',
+            'disdain': '轻蔑',
             'disgust': '厌恶',
             'fear': '恐惧',
-            'happy': '开心',
-            'psychology': '内心独白',
+            'happy': '高兴',
+            'psychology': '心里活动',
             'sad': '悲伤',
             'serious': '严肃',
             'surprise': '惊讶'
         };
-        
-        // 情感测试文本（从原始HTML提取）
+
+        // 情感合成文本
         const emotionTexts = {
-            'angry': '我已经说了无数遍了，这件事绝对不能这么处理，你们每次都当耳旁风，出了问题又来找我怎么办？',
-            'blue': '窗外下着小雨，我一个人坐在沙发上发呆，手机翻了又翻，却不知道该找谁聊天，心里空落落的。',
-            'concern': '最近你总是加班到很晚，饭也不好好吃，我真的很担心你的身体，你能不能答应我先去医院做个检查？',
-            'disdain': '我见过太多像你这样眼高手低的人了，说得天花乱坠结果一件正事都做不成，我劝你还是认清现实吧。',
-            'disgust': '我没见过这么不要脸的人，明明是自己犯的错，还好意思倒打一耙往别人身上推责任，真是让人作呕。',
-            'fear': '那个黑影越来越近了，我能听到它沉重的脚步声，我的心跳快要从嗓子眼里蹦出来了，浑身都在发抖。',
-            'happy': '今天是我这辈子最开心的一天，不仅升职加薪了，老朋友们还专门从外地赶过来给我庆祝，真是太幸福了。',
-            'psychology': '我理解你现在的感受，这种焦虑和不安是完全正常的，我们可以一起慢慢找到让你安心的方法，不要给自己太大压力。',
-            'sad': '每次路过那条我们一起走过的小路，眼泪就忍不住往下掉，那些美好的回忆如今都变成了刺痛心口的针。',
+            'happy': '额哈哈哈，这回总算让我逮到你了吧。',
+            'sad': '说着说着我又想起他了，真的撑不住，让我缓缓。',
+            'angry': '少跟我在这装无辜，你做的那些事你自己心里没数吗！',
             'serious': '我现在郑重地告诉各位，这个项目关系到公司的生死存亡，从今天起所有人必须全力以赴，不允许有任何懈怠。',
-            'surprise': '天啊我简直不敢相信，这个平时一句话都不多说的人居然偷偷准备了这么大一个惊喜给所有人。'
+            'surprise': '九十九块？你开什么玩笑，这也太离谱了吧！',
+            'concern': '最近你总是加班到很晚，饭也不好好吃，我真的很担心你的身体，你能不能答应我先去医院做个检查？',
+            'fear': '别动别动，你听，外面那个脚步声越来越近了。',
+            'blue': '其实我也不是不开心，就是觉得活着好累，唉，什么都没意思。',
+            'disdain': '得了吧，就这水平还出来教别人，也不怕丢人。',
+            'psychology': '她刚才摔门出去了，完了，肯定是我那句话说得太重了。',
+            'disgust': '下水道那个味道直往上冒，我胃里翻江倒海的，受不了了。'
         };
-        
-        // 渲染情感表格 - 按类别分组但使用单一表格
+
+        // 渲染情感表格 - 按类别分组
         function renderEmotionTable() {
             const tbody = document.getElementById('emotionTableBody');
-            
-            // 按情感类型分组
+
             const groupedData = {};
-            const emotionOrder = []; // 保持情感顺序
-            
+            const emotionOrder = [];
+
             emotionData.forEach(item => {
                 if (!groupedData[item.emotion]) {
                     groupedData[item.emotion] = [];
@@ -596,114 +553,86 @@
                 }
                 groupedData[item.emotion].push(item);
             });
-            
-            // 遍历所有情感，在同一个表格中渲染
-            emotionOrder.forEach((emotion, emotionIndex) => {
+
+            emotionOrder.forEach(emotion => {
                 groupedData[emotion].forEach((item, itemIndex) => {
-                    const basePath = 'emotion_eval_0509/audio';
                     const text = emotionTexts[item.emotion] || '';
-                    
                     const row = document.createElement('tr');
-                    
-                    // 每个情感类别的第一行显示情感标签，其他行留空
+
                     let emotionCell;
                     if (itemIndex === 0) {
                         emotionCell = `<td><span class="tag tag-emotion">${emotionMap[emotion]}<br><small>${emotion}</small></span></td>`;
                     } else {
                         emotionCell = '<td></td>';
                     }
-                    
+
                     row.innerHTML = `
                         ${emotionCell}
-                        <td class="audio-cell">
-                            <audio controls preload="none">
-                                <source src="${basePath}/prompt_${item.speaker}.wav" type="audio/wav">
-                            </audio>
-                        </td>
-                        <td class="text-cell">${text}</td>
-                        <td class="audio-cell">
-                            <audio controls preload="none">
-                                <source src="${basePath}/${item.speaker}@${item.emotion}_long_tagged.wav" type="audio/wav">
-                            </audio>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            });
-        }
-        
-        // 渲染副语言表格 - 按类别分组但使用单一表格
-        function renderParalingualTable() {
-            const tbody = document.getElementById('paralingualTableBody');
-            
-            // 按类型分组
-            const groupedData = {};
-            const typeOrder = []; // 保持类型顺序
-            
-            paralingualData.forEach(item => {
-                if (!groupedData[item.type]) {
-                    groupedData[item.type] = [];
-                    typeOrder.push(item.type);
-                }
-                groupedData[item.type].push(item);
-            });
-            
-            // 遍历所有类型，在同一个表格中渲染
-            typeOrder.forEach(type => {
-                groupedData[type].forEach((item, index) => {
-                    const row = document.createElement('tr');
-                    
-                    // 每个类别的第一行显示类型标签，其他行留空
-                    let typeCell;
-                    if (index === 0) {
-                        typeCell = `<td><span class="tag tag-paralingual">${type}</span></td>`;
-                    } else {
-                        typeCell = '<td></td>';
-                    }
-                    
-                    // 创建文本单元格并手动处理高亮
-                    const textCell = document.createElement('td');
-                    textCell.className = 'text-cell';
-                    
-                    // 使用正则表达式分割文本并创建高亮元素
-                    const parts = item.text.split(/(<\|[^|]+\|>)/g);
-                    parts.forEach(part => {
-                        if (part.match(/^<\|[^|]+\|>$/)) {
-                            // 这是副语言标签，创建高亮span
-                            const span = document.createElement('span');
-                            span.className = 'highlight';
-                            span.textContent = part;
-                            textCell.appendChild(span);
-                        } else if (part) {
-                            // 普通文本
-                            textCell.appendChild(document.createTextNode(part));
-                        }
-                    });
-                    
-                    row.innerHTML = `
-                        ${typeCell}
                         <td class="audio-cell">
                             <audio controls preload="none">
                                 <source src="${item.prompt}" type="audio/wav">
                             </audio>
                         </td>
+                        <td class="text-cell">${text || '<span class="empty-placeholder">待填写</span>'}</td>
+                        <td class="audio-cell">
+                            <audio controls preload="none">
+                                <source src="${item.audio}" type="audio/wav">
+                            </audio>
+                        </td>
                     `;
-                    row.insertBefore(textCell, row.children[2]);
-                    
-                    const audioCell = document.createElement('td');
-                    audioCell.className = 'audio-cell';
-                    audioCell.innerHTML = `
-                        <audio controls preload="none">
-                            <source src="${item.audio}" type="audio/wav">
-                        </audio>
-                    `;
-                    row.appendChild(audioCell);
-                    
                     tbody.appendChild(row);
                 });
             });
         }
-        
+
+        // 渲染副语言表格
+        function renderParalingualTable() {
+            const tbody = document.getElementById('paralingualTableBody');
+
+            paralingualData.forEach(item => {
+                const row = document.createElement('tr');
+
+                const typeCell = `<td><span class="tag tag-paralingual">${item.type}</span></td>`;
+
+                // 创建文本单元格并手动处理高亮
+                const textCell = document.createElement('td');
+                textCell.className = 'text-cell';
+
+                const parts = item.text.split(/(<\|[^|]+\|>)/g);
+                parts.forEach(part => {
+                    if (part.match(/^<\|[^|]+\|>$/)) {
+                        const span = document.createElement('span');
+                        span.className = 'highlight';
+                        span.textContent = part;
+                        textCell.appendChild(span);
+                    } else if (part) {
+                        textCell.appendChild(document.createTextNode(part));
+                    }
+                });
+
+                row.innerHTML = `
+                    ${typeCell}
+                    <td class="audio-cell">
+                        <audio controls preload="none">
+                            <source src="${item.prompt}" type="audio/wav">
+                        </audio>
+                    </td>
+                `;
+                row.insertBefore(textCell, row.children[2]);
+
+                const audioCell = document.createElement('td');
+                audioCell.className = 'audio-cell';
+                audioCell.innerHTML = `
+                    <audio controls preload="none">
+                        <source src="${item.audio}" type="audio/wav">
+                    </audio>
+                `;
+                row.appendChild(audioCell);
+
+                tbody.appendChild(row);
+            });
+        }
+
         // 方言标签映射
         const dialectMap = {
             'zh-dongbei': '东北话',
@@ -721,7 +650,7 @@
             'zh-shanghai': '上海话'
         };
 
-        // 方言2方言数据（按钉钉文档选定的demo）
+        // 方言2方言数据
         const fang2fangData = [
             { dialect: 'zh-dongbei', prompt: 'dialect/prompts/fang2fang_prompt_dongbei_4321.wav', text: '你搁那瞅啥呢？眼珠子都快瞪出来了。', audio: 'dialect/fang2fang/dialect_dongbei_4321-dialect_dongbei-4.wav' },
             { dialect: 'zh-shandong', prompt: 'dialect/prompts/fang2fang_prompt_shandong_2263.wav', text: '警方表示，是否闯红灯还有待进一步调查。', audio: 'dialect/fang2fang/dialect_shandong_2263-zh-shandong-0.wav' },
@@ -736,7 +665,7 @@
             { dialect: 'zh-shanghai', prompt: 'dialect/prompts/fang2fang_prompt_shanghai_T0108G0708.wav', text: '侬可要照顾好自家。', audio: 'dialect/fang2fang/dialect_shanghai_T0108G0708-zh-shanghai-1.wav' },
         ];
 
-        // 普通话2方言数据（按钉钉文档选定的demo，每个方言2条：xiaogao + pgc）
+        // 普通话2方言数据
         const pth2fangData = [
             { dialect: 'zh-dongbei', prompt: 'dialect/prompts/pth2fang_prompt_xiaogao.wav', text: '这锅包肉做得嘎嘎香，锅里还有酸菜炖大骨头。', audio: 'dialect/pth2fang/xiaogao-264dialect_dongbei.wav' },
             { dialect: 'zh-dongbei', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-679.wav', text: '你搁那瞅啥呢？眼珠子都快瞪出来了。', audio: 'dialect/pth2fang/pgc-ip-679-329dialect_dongbei.wav' },
@@ -766,7 +695,7 @@
             { dialect: 'zh-chongqing', prompt: 'dialect/prompts/pth2fang_prompt_pgc-ip-612.wav', text: '你晓不晓得明天到底放不放假？', audio: 'dialect/pth2fang/pgc-ip-612-30dialect_chongqing.wav' },
         ];
 
-        // 跨方言合成数据（source dialect → target dialect）
+        // 跨方言合成数据
         const other2fangData = [
             { dialect: 'zh-shanghai', source: 'zh-shan2xi', prompt: 'dialect/prompts/other2fang_prompt_shanxi_5428.wav', text: '我明朝想请一天假。', audio: 'dialect/other2fang/dialect_shanxi_5428-zh-shanghai-3.wav' },
             { dialect: 'zh-shanghai', source: 'zh-henan', prompt: 'dialect/prompts/fang2fang_prompt_henan_3558.wav', text: '淞南镇、蕴藻南路三百九十九号。', audio: 'dialect/other2fang/dialect_henan_3558-zh-shanghai-0.wav' },
